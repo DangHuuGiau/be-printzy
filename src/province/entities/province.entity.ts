@@ -1,7 +1,5 @@
-import { Address } from '@app/addresses/entities/address.entity';
 import { District } from '@app/district/entities/district.entity';
 import { ApiProperty, ApiTags } from '@nestjs/swagger';
-import { Exclude } from 'class-transformer';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @ApiTags('province')
@@ -41,12 +39,6 @@ export class Province {
   @ApiProperty({ description: 'The phone code of the province', example: 24 })
   @Column()
   phone_code: number;
-
-  @OneToMany(() => Address, (address) => address.province)
-  @ApiProperty({
-    type: () => [Address],
-  })
-  addresses: Address[];
 
   @OneToMany(() => District, (district) => district.province)
   @ApiProperty({

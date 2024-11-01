@@ -28,9 +28,10 @@ export class Address {
   @Column()
   addressDetail: string;
 
-  @Column({
-    default: false,
-  })
+  @Column()
+  postcode: string;
+
+  @Column()
   isDefault: boolean;
 
   @ManyToOne(() => Client, (client) => client.addresses, {

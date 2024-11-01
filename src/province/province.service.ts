@@ -1,10 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { CreateProvinceDto } from './dto/create-province.dto';
 import { UpdateProvinceDto } from './dto/update-province.dto';
+import { lastValueFrom } from 'rxjs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Province } from './entities/province.entity';
 import { Repository } from 'typeorm';
-import { paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
-import { ProvincePaginateConfig } from './configs/province.config';
+import { FindProvinceDto } from './dto/find-province';
+import { mapQueryToFindOptions } from '@app/utils';
 
 @Injectable()
 export class ProvinceService {
@@ -13,8 +15,17 @@ export class ProvinceService {
     private provinceRepository: Repository<Province>,
   ) {}
 
-  async findAll(query: PaginateQuery): Promise<Paginated<Province>> {
-    return paginate(query, this.provinceRepository, ProvincePaginateConfig);
+  async findAll(query: FindProvinceDto) {
+    console.log(query);
+    const findOptions = mapQueryToFindOptions(query);
+    const [data, total] =
+      await this.provinceRepository.findAndCount(findOptions);
+    return {
+      $limit: findOptions.take,
+      $skip: findOptions.skip,
+      total,
+      data,
+    };
   }
 
   async findOne(id: number) {

@@ -1,33 +1,50 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { DistrictService } from './district.service';
-import { ApiPaginationQuery, Paginated, PaginateQuery } from 'nestjs-paginate';
-import { DistrictPaginateConfig } from './configs/district.config';
-import { District } from './entities/district.entity';
-import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { CreateDistrictDto } from './dto/create-district.dto';
+import { UpdateDistrictDto } from './dto/update-district.dto';
+import { JWTGuard } from '@app/authentication/jwt.guard';
+import { RolesGuard } from '@app/utils/guards/roles.guard';
+import { Roles } from '@app/utils/decorators/role.decorator';
 
 @Controller('district')
-@ApiTags('District')
 export class DistrictController {
   constructor(private readonly districtService: DistrictService) {}
 
-  @Get()
-  @ApiPaginationQuery(DistrictPaginateConfig)
-  findAll(@Query() query: PaginateQuery): Promise<Paginated<District>> {
-    return this.districtService.findAll(query);
+  @Post()
+  create(@Body() createDistrictDto: CreateDistrictDto) {
+    return this.districtService.create(createDistrictDto);
   }
 
-  @Get('province')
-  @ApiQuery({
-    name: 'province_code',
-    required: false,
-    type: String,
-  })
-  findByProvinceCode(@Query('province_id') province_id: number) {
-    return this.districtService.findByProvinceCode(province_id);
+  @Get()
+  findAll() {
+    return this.districtService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.districtService.findOne(+id);
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updateDistrictDto: UpdateDistrictDto,
+  ) {
+    return this.districtService.update(+id, updateDistrictDto);
+  }
+  @UseGuards(JWTGuard, RolesGuard)
+  @Roles('admin')
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.districtService.remove(+id);
   }
 }

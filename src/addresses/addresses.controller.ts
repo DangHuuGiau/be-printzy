@@ -17,14 +17,10 @@ import { Roles } from '@utils/decorators/role.decorator';
 import { RolesGuard } from '@utils/guards/roles.guard';
 import { AddressesService } from './addresses.service';
 import { CreateAddressDto } from './dto/create-address.dto';
+import { FindAddressDto } from './dto/find-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
-import { ApiTags } from '@nestjs/swagger';
-import { ApiPaginationQuery, Paginated, PaginateQuery } from 'nestjs-paginate';
-import { AddressPaginateConfig } from './configs/address.config';
-import { Address } from './entities/address.entity';
 
 @Controller('addresses')
-@ApiTags('Addresses')
 export class AddressesController {
   constructor(private readonly addressesService: AddressesService) {}
 
@@ -43,12 +39,10 @@ export class AddressesController {
 
   @UseGuards(JWTGuard)
   @Get()
-  @ApiPaginationQuery(AddressPaginateConfig)
-  public async findAll(
-    @Query() query: PaginateQuery,
-    @Req() { user },
-  ): Promise<Paginated<Address>> {
-    return this.addressesService.findAll(query, user.client?.id);
+  public async findAll(@Query() query: FindAddressDto, @Req() { user }) {
+    return this.addressesService.findAll(
+      user.role === 'admin' ? query : { ...query, clientId: user.client?.id },
+    );
   }
 
   @UseGuards(JWTGuard)
